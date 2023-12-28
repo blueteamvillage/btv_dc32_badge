@@ -55,10 +55,7 @@
           "width": 0.0
         }
       ],
-      "drc_exclusions": [
-        "clearance|29800000|66500000|4aa9e2a3-2d6e-466b-bcdb-35ffd7140315|fc6e7a05-c9a0-4ae0-854a-886c65a417d6",
-        "courtyards_overlap|82160001|170750001|6d790ea8-5a6a-4ed8-9ac8-8957b803052b|9046c813-cceb-4567-be0f-e04735095f01"
-      ],
+      "drc_exclusions": [],
       "meta": {
         "version": 2
       },
@@ -434,7 +431,7 @@
   },
   "sheets": [
     [
-      "32ef29cc-513a-45d1-907a-a1f734b9fbc8",
+      "508949c6-1e48-480b-92b8-70ff3ee9de32",
       ""
     ]
   ],
