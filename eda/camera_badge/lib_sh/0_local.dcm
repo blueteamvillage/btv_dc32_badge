@@ -1,0 +1,311 @@
+EESchema-DOCLIB  Version 2.0
+#
+$CMP 1xAAA_Battery_Pack
+D Single-cell battery
+K battery cell
+F ~
+$ENDCMP
+#
+$CMP 2xAAA_Battery_Pack
+D Multiple-cell battery
+K batt voltage-source cell
+F ~
+$ENDCMP
+#
+$CMP Battery
+D Multiple-cell battery
+K batt voltage-source cell
+F ~
+$ENDCMP
+#
+$CMP Battery_CR2032
+D Single-cell CR2032 battery
+K battery cell cr2032
+F ~
+$ENDCMP
+#
+$CMP CP_Radial_D5
+D Polarized capacitor, US symbol
+K cap capacitor
+F ~
+$ENDCMP
+#
+$CMP CP_Radial_D6
+D Polarized capacitor, US symbol
+K cap capacitor
+F ~
+$ENDCMP
+#
+$CMP C_0603
+D Unpolarized capacitor
+K cap capacitor
+F ~
+$ENDCMP
+#
+$CMP C_0805
+D Unpolarized capacitor
+K cap capacitor
+F ~
+$ENDCMP
+#
+$CMP C_1206
+D Unpolarized capacitor
+K cap capacitor
+F ~
+$ENDCMP
+#
+$CMP C_Disc_D3
+D Unpolarized capacitor
+K cap capacitor
+F ~
+$ENDCMP
+#
+$CMP C_Rect_L5
+D Unpolarized capacitor
+K cap capacitor
+F ~
+$ENDCMP
+#
+$CMP Conn_01x02
+D Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)
+K connector
+F ~
+$ENDCMP
+#
+$CMP Conn_01x08
+D Generic connector, single row, 01x08, script generated (kicad-library-utils/schlib/autogen/connector/)
+K connector
+F ~
+$ENDCMP
+#
+$CMP Conn_RJ45_8P8C
+D RJ connector, 8P8C (8 positions 8 connected), RJ45
+K 8P8C RJ female connector
+F ~
+$ENDCMP
+#
+$CMP Conn_RJ45_8P8C_LED_Shielded
+D RJ connector, 8P8C (8 positions 8 connected), two LEDs, RJ45, Shielded
+K 8P8C RJ female connector led
+F ~
+$ENDCMP
+#
+$CMP Conn_RJ45_8P8C_Shielded
+D RJ connector, 8P8C (8 positions 8 connected), RJ45, Shielded
+K 8P8C RJ female connector
+F ~
+$ENDCMP
+#
+$CMP IC_CH552G
+D microcontroller, USB, SOP-16, SOP16, SOIC-16, 8-bit
+K 8-bit microcontroller with USB Interface 256B iRAM and 1KB xRAM
+F https://datasheet.lcsc.com/szlcsc/1812131556_Jiangsu-Qin-Heng-CH552G_C111292.pdf
+$ENDCMP
+#
+$CMP IC_Trinket_M0
+D Adafruit Trinket_M0, ATSAMD21E18 32-bit 48MHz, 256KB Flash, 32KB RAM
+K AVR 32-bit Cortex M0 Microcontroller Trinket
+F https://www.adafruit.com/product/3500
+$ENDCMP
+#
+$CMP LED_0603
+D Light emitting diode
+K LED diode
+F ~
+$ENDCMP
+#
+$CMP LED_0805
+D Light emitting diode
+K LED diode
+F ~
+$ENDCMP
+#
+$CMP LED_1206
+D Light emitting diode
+K LED diode
+F ~
+$ENDCMP
+#
+$CMP LED_NeoPixel_THT_5mm
+D RGB LED with integrated controller, 5mm LED package
+K RGB LED NeoPixel addressable
+F https://www.adafruit.com/product/1938
+$ENDCMP
+#
+$CMP LED_NeoPixel_THT_8mm
+D RGB LED with integrated controller, 8mm LED package
+K RGB LED NeoPixel addressable
+F https://www.adafruit.com/product/1734
+$ENDCMP
+#
+$CMP LED_RCBG_THT_5mm
+D RGB LED, red/cathode/blue/green
+K LED RGB diode
+F ~
+$ENDCMP
+#
+$CMP LED_THT_3mm
+D Light emitting diode
+K LED diode
+F ~
+$ENDCMP
+#
+$CMP LED_THT_5mm
+D Light emitting diode
+K LED diode
+F ~
+$ENDCMP
+#
+$CMP LED_THT_8mm
+D Light emitting diode
+K LED diode
+F ~
+$ENDCMP
+#
+$CMP LED_Two_Color_CC_THT_3mm
+D Two Color LED, Common Cathode
+K LED diode
+F ~
+$ENDCMP
+#
+$CMP LED_WS2812D_RPIN_THT_5mm
+D RGB LED with integrated controller, 5mm LED package, Reversed THT Pin-Out
+K RGB LED NeoPixel addressable WS2812
+$ENDCMP
+#
+$CMP LED_WS2812D_THT_5mm
+D RGB LED with integrated controller, 5mm LED package
+K RGB LED NeoPixel addressable WS2812
+$ENDCMP
+#
+$CMP Q_2222A_TO92
+D 1A Ic, 40V Vce, NPN Transistor, General Purpose Transistor, TO-92
+K NPN Transistor
+F https://www.onsemi.com/pub/Collateral/PN2222-D.PDF
+$ENDCMP
+#
+$CMP Q_CJ3415_MOSFET_SOT23
+D P-Channel MOSFET SOT-23, 20V, 4A, 0.037Ω @ 4.5V 4A, 1.3W 0.56V @ 250μA, 160pF @10V, P Channel, 1450pF @ 10V, 17.2nC @ 4.5V, SOT-23, MOSFET, P-Channel MOSFET
+K P-Channel MOSFET
+F https://datasheet.lcsc.com/lcsc/2112021830_Jiangsu-Changjing-Electronics-Technology-Co---Ltd--CJ3415_C2910186.pdf
+$ENDCMP
+#
+$CMP R_0603
+D Resistor SMD
+K R res resistor
+F ~
+$ENDCMP
+#
+$CMP R_0805
+D Resistor SMD
+K R res resistor
+F ~
+$ENDCMP
+#
+$CMP R_1206
+D Resistor SMD
+K R res resistor
+F ~
+$ENDCMP
+#
+$CMP R_Axial
+D Resistor
+K R res resistor
+F ~
+$ENDCMP
+#
+$CMP R_Axial_L3.6
+D Resistor
+K R res resistor
+F ~
+$ENDCMP
+#
+$CMP R_Axial_L6.3
+D Resistor
+K R res resistor
+F ~
+$ENDCMP
+#
+$CMP R_Axial_Z_L3.6
+D Resistor
+K R res resistor
+F ~
+$ENDCMP
+#
+$CMP R_Axial_Z_L6.3
+D Resistor
+K R res resistor
+F ~
+$ENDCMP
+#
+$CMP R_POT_5mm
+D Potentiometer using all three pins as Voltage Divider
+K resistor variable voltage divider
+F ~
+$ENDCMP
+#
+$CMP R_RHE_5mm
+D Rheostat - 3 pin POT configured as Variable Resistor using 2 pins
+K resistor variable
+F ~
+$ENDCMP
+#
+$CMP SW_Push_Dual_THT_6mm
+D Push button switch, generic, symbol, four pins
+K switch normally-open pushbutton push-button
+F https://datasheet.lcsc.com/szlcsc/1905211531_SHOU-HAN-TS665CJ_C393938.pdf
+$ENDCMP
+#
+$CMP SW_Push_SPST_4pin
+D Push button switch 4pin TS3735PA_250GF Tactile Switches SPST
+K switch normally-open pushbutton push-button Tactile SPST
+F https://datasheet.lcsc.com/szlcsc/1905211532_SHOU-HAN-3-7-3-7-0-35-SKRWAEE030_C393946.pdf
+$ENDCMP
+#
+$CMP SW_SPDT_C136659
+D Switch, single pole double throw
+K switch single-pole double-throw spdt ON-ON
+F https://datasheet.lcsc.com/szlcsc/Korean-Hroparts-Elec-K3-1296S-E2_C136659.pdf
+$ENDCMP
+#
+$CMP SW_SPDT_SS12D00G
+D Switch, single pole double throw
+K switch single-pole double-throw spdt ON-ON
+$ENDCMP
+#
+$CMP SW_TS2306A
+D Tactile Switches SPST 3.00mm x 2.00mm 0.60mm 10mA @ 5VDC SMD RoHS
+F https://datasheet.lcsc.com/szlcsc/1904241742_SHOU-HAN-TS2306A-240gf-MSM-9_C388290.pdf
+$ENDCMP
+#
+$CMP TestPoint_01x01
+D Generic test point connector, single row, 01x01
+K testpoint test point connector
+F ~
+$ENDCMP
+#
+$CMP TestPoint_01x02
+D Generic test point connector, single row, 01x02
+K testpoint test point connector
+F ~
+$ENDCMP
+#
+$CMP TestPoint_01x05
+D Generic test point connector, single row, 01x05
+K testpoint test point connector
+F ~
+$ENDCMP
+#
+$CMP TestPoint_01x08
+D Generic test point connector, single row, 01x08
+K testpoint test point connector
+F ~
+$ENDCMP
+#
+$CMP USB_B_Micro
+D USB B Micro Connector from Jing Extension of the Electronic Co.
+K USB Micro Connector
+F https://datasheet.lcsc.com/szlcsc/Jing-Extension-of-the-Electronic-Co-LCSC-micro-5PAll-posts-are-not-guided-Flat-welding-High-temperature_C77238.pdf
+$ENDCMP
+#
+#End Doc Library

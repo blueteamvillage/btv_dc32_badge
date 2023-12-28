@@ -1,0 +1,4 @@
+(sym_lib_table
+  (lib (name "0_local")(type "KiCad")(uri "${KIPRJMOD}/lib_sh/0_local.kicad_sym")(options "")(descr "Local Schematic Library"))
+  (lib (name "0_Raspberry_Pi")(type "KiCad")(uri "${KIPRJMOD}/lib_sh/0_Raspberry_Pi.kicad_sym")(options "")(descr ""))
+)

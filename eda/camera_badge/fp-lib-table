@@ -1,0 +1,8 @@
+(fp_lib_table
+  (lib (name "0_alt_bier")(type "KiCad")(uri "${KIPRJMOD}/lib_fp/0_alt_bier.pretty")(options "")(descr "@alt_bier Logo Files"))
+  (lib (name "0_local")(type "KiCad")(uri "${KIPRJMOD}/lib_fp/0_local.pretty")(options "")(descr "Local Footprint Files"))
+  (lib (name "0_org_logos")(type "KiCad")(uri "${KIPRJMOD}/lib_fp/0_org_logos.pretty")(options "")(descr "Org Logo Footprint Files"))
+  (lib (name "0_Raspberry_Pi")(type "KiCad")(uri "${KIPRJMOD}/lib_fp/0_Raspberry_Pi.pretty")(options "")(descr ""))
+  (lib (name "0_panelization")(type "KiCad")(uri "${KIPRJMOD}/lib_fp/0_panelization.pretty")(options "")(descr ""))
+  (lib (name "0_sao_v169bis")(type "KiCad")(uri "${KIPRJMOD}/lib_fp/0_sao_v169bis.pretty")(options "")(descr ""))
+)
