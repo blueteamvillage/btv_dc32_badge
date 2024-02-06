@@ -23,7 +23,7 @@ echo "##########" >>arduino_cli_setup.log
 
 # ########## loadLibs ##########
 
-loadLibs=("Adafruit NeoPixel" "AsyncTCP" "ESPAsyncWebSrv" "DNSServer")
+loadLibs=("Adafruit NeoPixel" "AsyncTCP" "ESPAsyncWebSrv" "DNSServer" "Adafruit GC9A01A")
 
 for l in "${loadLibs[@]}"; do
   echo "Install / Upgrade $l Library" |tee -a arduino_cli_setup.log
@@ -41,5 +41,4 @@ for l in "${loadLibs[@]}"; do
   arduino-cli --config-file arduino-cli.yml lib upgrade "$l" >>arduino_cli_setup.log 2>&1
   echo "##########" >>arduino_cli_setup.log
 done
-
 
