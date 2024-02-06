@@ -9,10 +9,10 @@
 
 
 // PIN DEFINITIONS
-#define DEV_CS_PIN  22
+#define DEV_CS_PIN  5
 #define DEV_DC_PIN  16
 #define DEV_RST_PIN 4
-#define DEV_BL_PIN  5
+#define DEV_BL_PIN  7
 
 
 // SETUP - RUN ONCE
