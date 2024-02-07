@@ -1,8 +1,20 @@
 //#include <Adafruit_NeoPixel.h>
 //#include <WiFi.h>
+
+// POC PINOUT
+//
+// ESP32 <->  TFT
+// --------------
+//  3V3  <->  VCC
+//  GND  <->  GND
+//   18  <->  SCL
+//   23  <->  SDA
+//   16  <->  DC
+//    5  <->  CS
+//    4  <->  RST
+
 #include <Arduino.h>
-// POC
-#include <SPI.h>
+#include "SPI.h"
 #include "LCD_Driver.h"
 #include "GUI_Paint.h"
 #include "image.h"
@@ -12,8 +24,6 @@
 #define DEV_CS_PIN  5
 #define DEV_DC_PIN  16
 #define DEV_RST_PIN 4
-#define DEV_BL_PIN  7
-
 
 // SETUP - RUN ONCE
 void setup(){

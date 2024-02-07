@@ -34,7 +34,7 @@
 
 #include <stdint.h>
 #include <stdio.h>
-#include <SPI.h>
+#include "SPI.h"
 #include "Debug.h"
 #include <Arduino.h>
 //#include <avr/pgmspace.h>
