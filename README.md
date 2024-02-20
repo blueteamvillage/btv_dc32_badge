@@ -14,12 +14,12 @@ This is the file structure of this repository
 
 * [/](/README.md) - YOU ARE HERE
 * [/art/](./art/) - Artwork and other graphics created by this project
-  * [/art/inspiration/](./art/inspiration/) - Art and graphics pulled from other sources used as inspiration for this project
+  * [/art/inspiration/](./art/inspiration/) - Art and graphics pulled f6 other sources used as inspiration for this project
   * [/art/fonts/](./art/fonts/) - Fonts used in art and graphics
 * [/code/](./code/) - All project related Code / Firmware
 * [/docs/](./docs/) - Documentation created by this project including web pages
 * [/eda/](./eda/) - Electronic Design Automation files (i.e. KiCad)
-  * [/eda/camera_badge/](./eda/camera_badge/) - KiCad 6.x project folder for the camera_badge PCB
+  * [/eda/camera_badge/](./eda/camera_badge/) - KiCad 7.x project folder for the camera_badge PCB
 * [/reference_parts/](./reference_parts/) - Documentation pulled from other sources related to components
 * [/README.md](/README.md) - This File
 * [/LICENSE](/LICENSE) - Currently set to MIT
