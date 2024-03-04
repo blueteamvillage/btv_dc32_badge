@@ -33,6 +33,29 @@ https://www.amazon.com/gp/product/B0B19DXFHX/
 
 https://www.aliexpress.us/item/3256805348040808.html
 
+## LIPO Charge Daughter Board
+
+A small pcb to add on to the badge to perform LIPO battery charging using its own USB type C connector
+
+https://www.amazon.com/dp/B0C2VD3ZW3
+
+https://www.aliexpress.us/item/3256806158767195.html
+
+## LIPO Boost Converter Daughter Board
+
+A small pcb to add on to the badge to perform DC-DC voltage boost from the LIPO 3.7V battery (4.2V-3.2V) to 9V or 12V for the VIN on the ESP dev board
+
+https://www.amazon.com/dp/B08M19C7MM
+
+https://www.aliexpress.us/item/3256802672103106.html
+
+This one may wrk better:
+A small pcb to add on to the badge to perform DC-DC voltage boost from the LIPO to 5V for the VIN on the ESP dev board
+
+https://www.amazon.com/gp/product/B08RJ8769R
+
+https://www.aliexpress.us/item/2255799830473720.html
+
 ## Buttons
 
 ## LEDs
