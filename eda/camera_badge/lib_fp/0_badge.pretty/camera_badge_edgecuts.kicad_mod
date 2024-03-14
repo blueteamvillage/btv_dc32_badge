@@ -1,11 +1,11 @@
 (footprint "camera_badge_edgecuts" (version 20221018) (generator pcbnew)
   (layer "F.Cu")
   (attr board_only exclude_from_pos_files exclude_from_bom)
-  (fp_text reference "G***" (at -10.5664 -2.4892) (layer "F.Fab") hide
+  (fp_text reference "badge_edgecuts" (at -10.5664 -2.4892) (layer "F.Fab") hide
       (effects (font (size 1.5 1.5) (thickness 0.3)))
     (tstamp fb385730-25a6-43c2-9fbe-5e9313afa34b)
   )
-  (fp_text value "Edge" (at -10.414 1.3462) (layer "F.Fab") hide
+  (fp_text value "Edge" (at -10.414 1.3462) (layer "F.Fab")
       (effects (font (size 1.5 1.5) (thickness 0.3)))
     (tstamp f46cabb2-8275-48ee-bd85-6452ff602481)
   )
