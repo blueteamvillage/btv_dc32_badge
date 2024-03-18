@@ -33,6 +33,18 @@ https://www.amazon.com/gp/product/B0B19DXFHX/
 
 https://www.aliexpress.us/item/3256805348040808.html
 
+## Dev Board with LIPO builtin
+
+ESP32 Lite V1.0.0 Wifi Bluetooth Development Board ESP32 REV1 CH340G 4MB TYPE-C
+NEW SMALLER CHIP and Dev Board includes LIPO connector and charge circuit
+
+https://www.amazon.com/AITRIP-Bluetooth-Development-Antenna-MicroPython/dp/B0BCJXDYLY
+
+https://www.aliexpress.us/item/3256804515306833.html
+
+ESP32-D0WDQ6 (and other QFN) Chip Specs:
+https://www.mouser.com/datasheet/2/891/Espressif_Systems_01292021_esp32-1991551.pdf
+
 ## LIPO Charge Daughter Board
 
 A small pcb to add on to the badge to perform LIPO battery charging using its own USB type C connector
