@@ -27,10 +27,14 @@ This is the file structure of this repository
 Note: the reference_parts directory is a link to a submodule repository.
 To add it use the following cmd after cloning this:
 ```
+git submodule update --init --recursive
+```
+If adding for the first time (i.e., it is not linked in the remote master) use this:
+```
 git submodule add https://github.com/gowenrw/reference_parts reference_parts
 ```
 This will make a link to the current commit of that repo.
 To update it to a newer commit after its been added use this cmd:
 ```
-git submodule update --init --recursive
+git submodule update --remote
 ```

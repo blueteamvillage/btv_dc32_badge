@@ -1,0 +1,3 @@
+[submodule "reference_parts"]
+	path = reference_parts
+	url = https://github.com/gowenrw/reference_parts
