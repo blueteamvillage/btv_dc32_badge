@@ -1,7 +1,9 @@
-#include "SPI.h"
-#include "Adafruit_GFX.h"
-#include "Adafruit_GC9A01A.h"
-
+// screen_poc_02
+//
+// code to test the GC9A01A screen on the esp dev board
+// steps through various different screen write types
+// code borrowed from Adafruit examples
+//
 // POC PINOUT
 //
 // ESP32 <->  TFT
@@ -13,21 +15,22 @@
 //   16  <->  DC
 //    5  <->  CS
 //    4  <->  RST
+//
+#include "SPI.h"
+#include "Adafruit_GFX.h"
+#include "Adafruit_GC9A01A.h"
 
 // Define pins for display interface. You'll probably need to edit this for
 // your own needs:
 
 //#if defined(ARDUINO_SEEED_XIAO_RP2040)
-
 // Pinout when using Seed Round Display for XIAO in combination with
 // Seeed XIAO RP2040. Other (non-RP2040) XIAO boards, any Adafruit Qt Py
 // boards, and other GC9A01A display breakouts will require different pins.
 //#define TFT_CS D1 // Chip select
 //#define TFT_DC D3 // Data/command
 //#define TFT_BL D6 // Backlight control
-
 //#else // ALL OTHER BOARDS - EDIT AS NEEDED
-
 // Other RP2040-based boards might not have "D" pin defines as shown above
 // and will use GPIO bit numbers. On non-RP2040 boards, you can usually use
 // pin numbers silkscreened on the board.
@@ -35,7 +38,7 @@
 #define TFT_CS 5
 // If display breakout has a backlight control pin, that can be defined here
 // as TFT_BL. On some breakouts it's not needed, backlight is always on.
-
+//#define TFT_BL 6
 //#endif
 
 // Display constructor for primary hardware SPI connection -- the specific

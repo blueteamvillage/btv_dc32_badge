@@ -44,4 +44,4 @@ Follow these steps:
 Once the code has been uploaded you can use the serial monitor to look for any text the code is sending.
 
 * Run the following command changing the serial port to what board list showed above
-  * ```arduino-cli monitor --port COM6 --config baudrate=115200```
+  * ```arduino-cli monitor --config baudrate=115200 --port COM6```
