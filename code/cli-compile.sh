@@ -32,3 +32,5 @@ fi
 
 echo "arduino-cli --config-file arduino-cli.yml compile --fqbn esp32:esp32:esp32 --build-path _build --export-binaries $1 --build-property build.partitions=min_spiffs --build-property upload.maximum_size=1966080"
 arduino-cli --config-file arduino-cli.yml compile --fqbn esp32:esp32:esp32 --build-path _build --export-binaries $1 --build-property build.partitions=min_spiffs --build-property upload.maximum_size=1966080
+# Put back the file ./_build/README.md which is detroyed during compile
+echo -e "# directory placeholder" > ./_build/README.md
