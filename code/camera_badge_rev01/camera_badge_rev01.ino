@@ -7,6 +7,8 @@
 #include "SPI.h"
 #include "Adafruit_GFX.h"
 #include "Adafruit_GC9A01A.h"
+#include <esp_wifi_types.h>
+#include <esp_wifi.h>
 
 // Pin Definitions
 //
@@ -31,9 +33,9 @@
 #define LED_D7 14
 //
 // Capacitive Touch Pins
-#define TCH01 0
-#define TCH03 15
-#define TCH05 12
+#define TCH01_PIN 13
+#define TCH03_PIN 15
+#define TCH05_PIN 12
 
 // Display Properties
 //
@@ -76,6 +78,42 @@ const char* wl_status_to_string(wl_status_t status) {
     case WL_DISCONNECTED: return "WL_DISCONNECTED";
   }
 }
+//
+// DEAUTH SNIFF Properties
+#define MAX_CHANNELS 13
+const unsigned long CHANNEL_HOP_INTERVAL = 2500;
+unsigned long previousChannelHopTime = 0;
+const wifi_promiscuous_filter_t filt = {.filter_mask = WIFI_PROMIS_FILTER_MASK_MGMT | WIFI_PROMIS_FILTER_MASK_DATA};
+int currentChannel = 1;
+unsigned long deauthThreshold = 20;
+unsigned long deauthCount = 0;
+typedef struct {
+  int16_t fctl;
+  int16_t duration;
+  uint8_t da;
+  uint8_t sa;
+  uint8_t bssid;
+  int16_t seqctl;
+  unsigned char payload[];
+} WifiMgmtHdr;
+typedef struct {
+  unsigned frame_ctrl : 16;
+  unsigned duration_id : 16;
+  uint8_t addr1[6]; /* receiver address */
+  uint8_t addr2[6]; /* sender address */
+  uint8_t addr3[6]; /* filtering address */
+  unsigned sequence_ctrl : 16;
+  uint8_t addr4[6]; /* optional */
+} wifi_ieee80211_mac_hdr_t;
+typedef struct {
+  uint8_t payload[0];
+  wifi_ieee80211_mac_hdr_t hdr;
+} wifi_ieee80211_packet_t_2;
+typedef struct {
+  uint8_t payload[0];
+  WifiMgmtHdr hdr;
+} wifi_ieee80211_packet_t;
+bool deauth_sniff_active = false;
 
 // Capacitive Touch Properties
 //
@@ -89,12 +127,19 @@ int Touch03_Value = 21;
 int Touch05_Value = 21;
 //
 // Touch Counters
+//
+// Touch Iteration Counter
 int Touch01_IntCount = 0;
 int Touch03_IntCount = 0;
 int Touch05_IntCount = 0;
+// Touch Loop Counter
 int Touch01_LoopCount = 0;
 int Touch03_LoopCount = 0;
 int Touch05_LoopCount = 0;
+// Touch Loop Threshold (Touch Held for X Loops of Main)
+int Touch01_Loop_Threshold = 3;
+int Touch03_Loop_Threshold = 3;
+int Touch05_Loop_Threshold = 3;
 
 // Loop Control Properties
 //
@@ -195,11 +240,11 @@ void loop(){
   }
   // Capacitive Touch Dynamic Threshold Adjustment
   // Adjust thresholds UP to account for assembly conditions and battery vs usb
-  Touch01_Value = touchRead(TCH01);
+  Touch01_Value = touchRead(TCH01_PIN);
   if ( (Touch01_Value / Touch01_Threshold) > 2 ) { Touch01_Threshold = int(Touch01_Threshold * 1.8); }
-  Touch03_Value = touchRead(TCH03);
+  Touch03_Value = touchRead(TCH03_PIN);
   if ( (Touch03_Value / Touch03_Threshold) > 2 ) { Touch03_Threshold = int(Touch03_Threshold * 1.8); }
-  Touch05_Value = touchRead(TCH05);
+  Touch05_Value = touchRead(TCH05_PIN);
   if ( (Touch05_Value / Touch05_Threshold) > 2 ) { Touch05_Threshold = int(Touch05_Threshold * 1.8); }
 
   // Iterate 0 to 254
@@ -253,84 +298,84 @@ void loop(){
     // DEBUG - Print current Iteration value to serial console for troubleshooting
     if (DebugSerial >= 2) {
       Serial.print(" Iteration="); Serial.print(i);
-      Serial.print(" Position="); Serial.print(pos);
+      Serial.print(" Pos="); Serial.print(pos);
     }
 
     //
     // TOUCH
     //
     // Read Touch Values
-    Touch01_Value = touchRead(TCH01);
-    Touch03_Value = touchRead(TCH03);
-    Touch05_Value = touchRead(TCH05);
+    Touch01_Value = touchRead(TCH01_PIN);
+    Touch03_Value = touchRead(TCH03_PIN);
+    Touch05_Value = touchRead(TCH05_PIN);
     //
-    // Do Stuff If We Detect a Touch on TCH01
+    // Do Stuff If We Detect a Touch on TCH01_PIN
     if (Touch01_Value < Touch01_Threshold) {
       // DEBUG - Print current Touch value/threshold to serial console for troubleshooting
       if (DebugSerial >= 2) {
-        Serial.print(" TCH01_TOUCH="); Serial.print(Touch01_Value);
+        Serial.print(" T01_TOUCH="); Serial.print(Touch01_Value);
         Serial.print("/"); Serial.print(Touch01_Threshold);
         Serial.print("-"); Serial.print(Touch01_IntCount);
         Serial.print("/"); Serial.print(Touch01_LoopCount);
       }
-      // STUFF - TCH01 TOUCHED
+      // STUFF - TCH01_PIN TOUCHED
       if (Touch01_IntCount == 0){
         // Put stuff to happen once per iteration loop here
-        status_neo_colorset(status_neo_mode);
       }
       // Put stuff to happen every iteration here
       Touch01_IntCount = 1;
     //
-    // Do Stuff If We DONT Detect a Touch on TCH01
+    // Do Stuff If We DONT Detect a Touch on TCH01_PIN
     } else {
       // DEBUG - Print current Touch value/threshold to serial console for troubleshooting
       if (DebugSerial >= 2) {
-        Serial.print(" TCH01="); Serial.print(Touch01_Value);
+        Serial.print(" T01="); Serial.print(Touch01_Value);
         Serial.print("/"); Serial.print(Touch01_Threshold);
         Serial.print("-"); Serial.print(Touch01_IntCount);
         Serial.print("/"); Serial.print(Touch01_LoopCount);
       }
-      // STUFF - TCH01 NOT TOUCHED
+      // STUFF - TCH01_PIN NOT TOUCHED
     }
     //
-    // Do Stuff If We Detect a Touch on TCH03
+    // Do Stuff If We Detect a Touch on TCH03_PIN
     if (Touch03_Value < Touch03_Threshold) {
       // DEBUG - Print current Touch value/threshold to serial console for troubleshooting
       if (DebugSerial >= 2) {
-        Serial.print(" TCH03_TOUCH="); Serial.print(Touch03_Value);
+        Serial.print(" T03_TOUCH="); Serial.print(Touch03_Value);
         Serial.print("/"); Serial.print(Touch03_Threshold);
         Serial.print("-"); Serial.print(Touch03_IntCount);
         Serial.print("/"); Serial.print(Touch03_LoopCount);
       }
-      // STUFF - TCH03 TOUCHED
+      // STUFF - TCH03_PIN TOUCHED
       if (Touch03_IntCount == 0){
         // Put stuff to happen once per iteration loop here
+        status_neo_colorset(status_neo_mode);
       }
       // Put stuff to happen every iteration here
       Touch03_IntCount = 1;
     //
-    // Do Stuff If We DONT Detect a Touch on TCH03
+    // Do Stuff If We DONT Detect a Touch on TCH03_PIN
     } else {
       // DEBUG - Print current Touch value/threshold to serial console for troubleshooting
       if (DebugSerial >= 2) {
-        Serial.print(" TCH03="); Serial.print(Touch03_Value);
+        Serial.print(" T03="); Serial.print(Touch03_Value);
         Serial.print("/"); Serial.print(Touch03_Threshold);
         Serial.print("-"); Serial.print(Touch03_IntCount);
         Serial.print("/"); Serial.print(Touch03_LoopCount);
       }
-      // STUFF - TCH03 NOT TOUCHED
+      // STUFF - TCH03_PIN NOT TOUCHED
     }
     //
-    // Do Stuff If We Detect a Touch on TCH05
+    // Do Stuff If We Detect a Touch on TCH05_PIN
     if (Touch05_Value < Touch05_Threshold) {
       // DEBUG - Print current Touch value/threshold to serial console for troubleshooting
       if (DebugSerial >= 2) {
-        Serial.print(" TCH05_TOUCH="); Serial.print(Touch05_Value);
+        Serial.print(" T05_TOUCH="); Serial.print(Touch05_Value);
         Serial.print("/"); Serial.print(Touch05_Threshold);
         Serial.print("-"); Serial.print(Touch05_IntCount);
         Serial.print("/"); Serial.print(Touch05_LoopCount);
       }
-      // STUFF - TCH05 TOUCHED
+      // STUFF - TCH05_PIN TOUCHED
       if (Touch05_IntCount == 0){
         // Put stuff to happen once per iteration loop here
       }
@@ -338,16 +383,16 @@ void loop(){
       Touch05_IntCount = 1;
       digitalWrite(LED_D2, HIGH);
     //
-    // Do Stuff If We DONT Detect a Touch on TCH05
+    // Do Stuff If We DONT Detect a Touch on TCH05_PIN
     } else {
       // DEBUG - Print current Touch value/threshold to serial console for troubleshooting
       if (DebugSerial >= 2) {
-        Serial.print(" TCH05="); Serial.print(Touch05_Value);
+        Serial.print(" T05="); Serial.print(Touch05_Value);
         Serial.print("/"); Serial.print(Touch05_Threshold);
         Serial.print("-"); Serial.print(Touch05_IntCount);
         Serial.print("/"); Serial.print(Touch05_LoopCount);
       }
-      // STUFF - TCH05 NOT TOUCHED
+      // STUFF - TCH05_PIN NOT TOUCHED
       digitalWrite(LED_D2, LOW);
     }
 
@@ -378,6 +423,88 @@ void loop(){
   // Turn off all LEDs at end of loop (Optional)
   // ledAllOff();
 
+  // //////////////////////////////////////////////////
+  //
+  // Launch DEAUTH SNIFF Alternate Mainline Code When
+  // Touch01_LoopCount exceeds Touch01_Loop_Threshold
+  //
+  // //////////////////////////////////////////////////
+  if (Touch01_LoopCount > Touch01_Loop_Threshold) {
+    Serial.println("LONG TOUCH DETECTED on TCH01 - JUMP TO ALTERNATE CODE");
+    ledAllOff();
+    title_neo_red();
+    // Print Serial Welcome Once
+    Serial.println("****************************************");
+    Serial.println("****************************************");
+    Serial.println("** WELCOME TO WIFI DEAUTH SNIFF MODE ***");
+    Serial.println("****************************************");
+    Serial.println("****************************************");
+    Serial.println("*** ACTIVATED BY LONG TOUCH ON TCH01 ***");
+    Serial.println("****************************************");
+    Serial.println("****************************************");
+    Serial.println("** LONG PRESS AGAIN TO EXIT THIS MODE **");
+    Serial.println("****************************************");
+    Serial.println("****************************************");
+    // Pause before turning on proceeding
+    delay(1000);
+    //
+    // DEAUTH SNIFF SETUP
+    deauth_sniff_setup();
+    // Pause for WiFi to come up
+    delay(2000);
+    //
+    // DEAUTH SNIFF Alternative Main Loop
+    while (deauth_sniff_active) {
+      //
+      if (millis() - previousChannelHopTime >= CHANNEL_HOP_INTERVAL) {
+        if (deauthCount >= deauthThreshold)
+        {
+          Serial.println("Too many Deauths! (>=20)");
+          tft.fillScreen(0xF800); // go red
+          delay(3500);
+          tft.fillScreen(0x07E0); // reset to green
+        }
+        channelHop();
+        previousChannelHopTime = millis();
+        //
+        // Touch for exit mode settings
+        //
+        Touch01_Value = touchRead(TCH01_PIN);
+        // Do Stuff If We Detect a Touch on TCH01_PIN
+        if (Touch01_Value < Touch01_Threshold) {
+          // DEBUG - Print current Touch value/threshold to serial console for troubleshooting
+          if (DebugSerial >= 2) {
+            Serial.print("TCH01_TOUCHED="); Serial.print(Touch01_Value);
+            Serial.print("/"); Serial.println(Touch01_Threshold);
+          }
+          // STUFF - TCH01_PIN TOUCHED
+          Touch01_LoopCount++;
+        //
+        // Do Stuff If We DONT Detect a Touch on TCH01_PIN
+        } else {
+          // STUFF - TCH01_PIN NOT TOUCHED
+          Touch01_LoopCount = 0;
+        }
+        if (Touch01_LoopCount > 3) {
+          deauth_sniff_active = false;
+        }
+      }
+    }
+    // END ALTERNATE MAIN LOOP
+    Serial.println("****************************************");
+    Serial.println("**** EXITING WIFI DEAUTH SNIFF MODE ****");
+    Serial.println("****************************************");
+    ledAllOff();
+    // Turn Off WiFi/BT
+    if (DebugSerial >= 2) {
+      Serial.println("Turn Off WiFi / BlueTooth");
+    }
+    setModemSleep();
+    Touch01_LoopCount = 0;
+    // Pause before turning on proceeding
+    delay(100);
+  }
+
   // END OF MAIN LOOP
 }
 
@@ -394,15 +521,18 @@ void disableWiFi(){
     WiFi.mode(WIFI_OFF);    // Switch WiFi off
     Serial.println("WiFi disabled!");
 }
+//
 void disableBluetooth(){
     btStop();
     Serial.println("Bluetooth stopped!");
 }
+//
 void setModemSleep() {
     disableWiFi();
     disableBluetooth();
     setCpuFrequencyMhz(80);
 }
+//
 void enableWiFi(){
     delay(200);
     // Switch Wifi ON in mode AP/STA/AP_STA
@@ -410,10 +540,73 @@ void enableWiFi(){
     delay(200);
     Serial.println("WiFi Started!");
 }
+//
 void wakeModemSleep() {
     setCpuFrequencyMhz(240);
     enableWiFi();
 }
+// //////////////////////////////////////////////////
+//
+// DEAUTH SNIFF Functions
+// //////////////////////////////////////////////////
+void deauth_sniff_setup(){
+  WiFi.begin();
+  esp_wifi_set_promiscuous(true);
+  esp_wifi_set_channel(1, WIFI_SECOND_CHAN_NONE);
+  esp_wifi_set_promiscuous_filter(&filt);
+  esp_wifi_set_promiscuous_rx_cb(packetSniffer);
+  tft.fillScreen(0x07E0);
+  previousChannelHopTime = millis();
+  deauth_sniff_active = true;
+  Touch01_LoopCount = 0;
+}
+//
+void channelHop()
+{
+  currentChannel = (currentChannel % MAX_CHANNELS) + 1;
+  esp_wifi_set_channel(currentChannel, WIFI_SECOND_CHAN_NONE);
+  Serial.print("Channel: " + String(currentChannel));
+  Serial.println(" Deauth: " + String(deauthCount));
+  deauthCount = 0;
+}
+//
+void packetSniffer(void *buf, wifi_promiscuous_pkt_type_t type)
+{
+  if (type == WIFI_PKT_MGMT)
+  {
+    wifi_promiscuous_pkt_t *packet = (wifi_promiscuous_pkt_t *)buf;
+    const wifi_ieee80211_packet_t_2 *ipkt = (wifi_ieee80211_packet_t_2 *)packet->payload;
+    const wifi_ieee80211_mac_hdr_t *hdr = &ipkt->hdr;
+
+    switch (hdr->frame_ctrl & 0xFC) // Mask to get type and subtype only
+    { 
+    case 0xB0: // Authentication frame
+
+      break;
+    case 0xC0: // Deauthentication frame
+      deauthCount++;
+      break;
+    case 0x00: // Association request frame
+
+      break;
+    case 0x30: // Reassociation response frame
+
+      break;
+    case 0x40: // Probe request frame
+
+      break;
+    case 0x50: // Probe response frame
+
+      break;
+    case 0x80: // Beacon frame
+
+      break;
+    default:
+      break;
+    }
+  }
+}
+// //////////////////////////////////////////////////
 //
 // LED Functions
 // //////////////////////////////////////////////////
@@ -430,6 +623,7 @@ void ledAllOff() {
   NEO02.setPixelColor(0, 0, 0, 0);
   NEO02.show();
 }
+//
 void ledPwmSet(uint8_t pos, uint8_t pass) {
   // Pass 1 pos 0-84
   // D3/6 ON->OFF
@@ -472,6 +666,7 @@ void ledPwmSet(uint8_t pos, uint8_t pass) {
     ledcWrite(LED_D7_pwm, int(255 - ((pos-43)*6)));
   }
 }
+//
 void title_neo_colorshift(uint8_t pos, uint8_t pass) {
   // Pass 1 pos 0-84
   if (pass == 1){
@@ -497,6 +692,25 @@ void title_neo_colorshift(uint8_t pos, uint8_t pass) {
   // Show color setting on Neoixel
   NEO01.show();
 }
+//
+void title_neo_red() {
+  NEO01.setPixelColor(0, 255, 0, 0);
+  NEO01.setPixelColor(1, 255, 0, 0);
+  NEO01.show();
+}
+//
+void title_neo_green() {
+  NEO01.setPixelColor(0, 0, 255, 0);
+  NEO01.setPixelColor(1, 0, 255, 0);
+  NEO01.show();
+}
+//
+void title_neo_blue() {
+  NEO01.setPixelColor(0, 0, 0, 255);
+  NEO01.setPixelColor(1, 0, 0, 255);
+  NEO01.show();
+}
+//
 void status_neo_colorset(uint8_t mode) {
   // Status NeoPixel LED color mode 
   // bitwise off=0 red=1 green=2 blue=4
@@ -521,21 +735,23 @@ void status_neo_colorset(uint8_t mode) {
   // Show color setting on Neoixel
   NEO02.show();
 }
-
-
+// //////////////////////////////////////////////////
 //
 // DISPLAY Functions
 // //////////////////////////////////////////////////
 unsigned long testTCHvalueText() {
   tft.fillScreen(GC9A01A_BLACK);
   unsigned long start = micros();
-  tft.setCursor(0, 0);
+  tft.setCursor(35, 60);
   tft.setTextColor(GC9A01A_WHITE);  tft.setTextSize(3);
   tft.println("TCH Values");
   tft.setTextColor(GC9A01A_BLUE); tft.setTextSize(2);
-  tft.print("TCH01 "); tft.print(Touch01_Value); tft.print("/"); tft.println(Touch01_Threshold);
-  tft.print("TCH03 "); tft.print(Touch03_Value); tft.print("/"); tft.println(Touch03_Threshold);
-  tft.print("TCH05 "); tft.print(Touch05_Value); tft.print("/"); tft.println(Touch05_Threshold);
+  tft.print("  TCH01 "); tft.setTextColor(GC9A01A_WHITE); tft.print(Touch01_Value);
+  tft.setTextColor(GC9A01A_BLUE); tft.print("/"); tft.println(Touch01_Threshold);
+  tft.print("  TCH03 "); tft.setTextColor(GC9A01A_WHITE); tft.print(Touch03_Value);
+  tft.setTextColor(GC9A01A_BLUE); tft.print("/"); tft.println(Touch03_Threshold);
+  tft.print("  TCH05 "); tft.setTextColor(GC9A01A_WHITE); tft.print(Touch05_Value);
+  tft.setTextColor(GC9A01A_BLUE); tft.print("/"); tft.println(Touch05_Threshold);
   return micros() - start;
 }
 //
