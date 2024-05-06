@@ -1,18 +1,6 @@
 # Parts-List.md
 
-## Screen
-
-2.4inch LCD Display Module 240×320 Resolution RGB Colors LCD Monitor 2.4" TFT Screen SPI Interface Board
-
-![Specs](screen_specs_2.4in_Sf8d2ac15530845a3804ac49b09447cc6L.jpg)
-
-https://www.amazon.com/2-4inch-Display-240%C3%97320-Resolution-Interface/dp/B0CGDQN811
-
-https://www.aliexpress.us/item/3256806123904425.html
-
-https://www.aliexpress.us/item/3256805947033530.html
-
-https://www.aliexpress.us/item/3256805989033289.html
+## Screen [1 ea]
 
 1.28 inch TFT LCD Display Module Round RGB 240*240 GC9A01 Driver 4 Wire SPI Interface
 
@@ -23,17 +11,7 @@ https://www.amazon.com/Teyleten-Robot-Display-Interface-240x240/dp/B0B7TFRNN1
 
 https://www.aliexpress.us/item/3256804295713253.html
 
-https://www.aliexpress.us/item/3256806201295818.html
-
-## Dev Board 
-
-ESP32 Development Board TYPE-C WROOM-32 WiFi+Bluetooth BT+BLE MCU Module
-
-https://www.amazon.com/gp/product/B0B19DXFHX/
-
-https://www.aliexpress.us/item/3256805348040808.html
-
-## Dev Board with LIPO builtin
+## Dev Board with LIPO charge builtin [1 ea]
 
 ESP32 Lite V1.0.0 Wifi Bluetooth Development Board ESP32 REV1 CH340G 4MB TYPE-C
 NEW SMALLER CHIP and Dev Board includes LIPO connector and charge circuit
@@ -42,38 +20,82 @@ https://www.amazon.com/AITRIP-Bluetooth-Development-Antenna-MicroPython/dp/B0BCJ
 
 https://www.aliexpress.us/item/3256804515306833.html
 
-ESP32-D0WDQ6 (and other QFN) Chip Specs:
-https://www.mouser.com/datasheet/2/891/Espressif_Systems_01292021_esp32-1991551.pdf
+## Switch [1 ea]
 
-## LIPO Charge Daughter Board
+Switch SS12D00 two position 3-pin 3mm handle
 
-A small pcb to add on to the badge to perform LIPO battery charging using its own USB type C connector
+https://www.aliexpress.us/item/2255801021214741.html
 
-https://www.amazon.com/dp/B0C2VD3ZW3
+## Addressable LEDs [3 ea]
 
-https://www.aliexpress.us/item/3256806158767195.html
+WS2811 F5 5mm HAT housing
 
-## LIPO Boost Converter Daughter Board
+https://www.aliexpress.us/item/2251832645784910.html
 
-A small pcb to add on to the badge to perform DC-DC voltage boost from the LIPO 3.7V battery (4.2V-3.2V) to 9V or 12V for the VIN on the ESP dev board
+## Blue LEDs [5 ea]
 
-https://www.amazon.com/dp/B08M19C7MM
+LED F3 3mm Ultra Bright Flat top Head BLUE Wide Angle Light Emitting Lamp Diodes
 
-https://www.aliexpress.us/item/3256802672103106.html
+https://www.aliexpress.us/item/3256802346555541.html
 
-This one may wrk better:
-A small pcb to add on to the badge to perform DC-DC voltage boost from the LIPO to 5V for the VIN on the ESP dev board
+## Resistors [8 ea]
 
-https://www.amazon.com/gp/product/B08RJ8769R
+Resistor 1/4W 47R 1% Metal film 47 ohm resistance
 
-https://www.aliexpress.us/item/2255799830473720.html
+https://www.aliexpress.us/item/3256802343221323.html
 
-## Buttons
+## Capacitors [3 ea]
 
-## LEDs
+Capacitor 50V monolithic ceramic 100NF 104
 
-## Standoffs
+https://www.aliexpress.us/item/3256802789853556.html
 
-## Battery
+## Lipo Battery [1 ea]
 
+3.7V 1200mAh Lithium Polymer LiPo Rechargeable Battery 103040
 
+https://www.aliexpress.us/item/3256804282777660.html
+https://www.aliexpress.us/item/3256805760800610.html
+
+## Thin Adhesive strip [length to cut and place on all batteries]
+
+Rolls of 36ft thin strong adhesive strip to secure battery in place.
+Bought by the roll and cut into pieces that will be secured to battery before shipping.
+Customer will just peel the film off the strip before sticking to the pcb.
+Assuming 2in per battery one roll would do about 200 batteries.
+
+https://www.amazon.com/gp/product/B09T6VCB4D
+
+## Micro PH/JST connectors [1 ea]
+
+PH2.0 Mini Micro JST 2.0 PH 2-Pin Plug With terminal Wires 26AWG
+This is for connecting the dev board battery connection to the PCB.
+If getting Lippo batteries with a connector this may not be needed (since it will be cut off and reused)
+
+https://www.aliexpress.us/item/3256801804215866.html
+
+## Male Headers [1 ea]
+
+Header pins male 2.54in 1x40 breakaway
+
+https://www.aliexpress.us/item/2251832803038195.html
+
+## Female Headers [4 ea]
+
+Header pins female 2.54in 1x5
+
+https://www.aliexpress.us/item/2251832784633600.html
+
+## SAO Connector (badge side) [1 ea]
+
+Header female 2x3 6-pin with polarizing key
+
+https://www.aliexpress.us/item/2251832874579437.html
+
+## Bright White LED [1 ea]
+
+Super Bright 5mm White LED clear bulbs
+
+Note this is the only product in the list that I have not ordered previously so maybe shop around for this one --Richard
+
+https://www.aliexpress.us/item/2251832644655195.html
