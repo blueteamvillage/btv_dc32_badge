@@ -151,6 +151,8 @@ int LEDDelayTime = 20;
 // 1 = basic debug info once per main loop
 // 2 = extra debug info
 int DebugSerial = 2;
+// Store a random number
+int MyRandom = 0;
 
 // //////////////////////////////////////////////////
 //
@@ -222,6 +224,10 @@ void setup(){
   }
   ledAllOff();
 
+  //
+  // Random Seed based on Touch03_Value
+  randomSeed(touchRead(TCH03_PIN));
+
   if (DebugSerial >= 1) {
     Serial.println(F("Setup Done!"));
   }
@@ -256,9 +262,14 @@ void loop(){
     // First of three position groups i 0-84
     if (pos < 85) {
       //
-      // RUN SCREEN UPDATE ONCE PER GROUP
-      //if (pos == 0){ testFilledCircles(10, GC9A01A_BLUE); }
-      if (pos == 0){ testTCHvalueText(); }
+      // RUN A RANDOM SCREEN UPDATE ONCE PER GROUP
+      if (pos == 0) {
+        MyRandom = random(1, 5);
+        if (MyRandom == 1){ testFilledCircles(10, GC9A01A_BLUE); }
+        if (MyRandom == 2){ testFilledRects(GC9A01A_YELLOW, GC9A01A_MAGENTA); }
+        if (MyRandom == 3){ testTriangles(); }
+        if (MyRandom >= 4){ testTCHvalueText(); }
+      }
       //
       // LED FUNCTIONS
       title_neo_colorshift(pos, 1);
@@ -267,9 +278,14 @@ void loop(){
     } else if (pos < 170) {
       pos = pos - 85;
       //
-      // RUN SCREEN UPDATE ONCE PER GROUP
-      //if (pos == 0){ testFilledRects(GC9A01A_YELLOW, GC9A01A_MAGENTA); }
-      if (pos == 0){ testTCHvalueText(); }
+      // RUN A RANDOM SCREEN UPDATE ONCE PER GROUP
+      if (pos == 0) {
+        MyRandom = random(1, 5);
+        if (MyRandom == 1){ testFastLines(GC9A01A_RED, GC9A01A_BLUE); }
+        if (MyRandom == 2){ testRects(GC9A01A_GREEN); }
+        if (MyRandom == 3){ testTCHvalueText(); }
+        if (MyRandom >= 4){ testFilledTriangles(); }
+      }
       //
       // LED FUNCTIONS
       title_neo_colorshift(pos, 2);
@@ -278,9 +294,14 @@ void loop(){
     } else {
       pos = pos -170;
       //
-      // RUN SCREEN UPDATE ONCE PER GROUP
-      //if (pos == 0){ testTriangles(); }
-      if (pos == 0){ testTCHvalueText(); }
+      // RUN A RANDOM SCREEN UPDATE ONCE PER GROUP
+      if (pos == 0) {
+        MyRandom = random(1, 5);
+        if (MyRandom == 1){ testRoundRects(); }
+        if (MyRandom == 2){ testTCHvalueText(); }
+        if (MyRandom == 3){ testCircles(10, GC9A01A_RED); }
+        if (MyRandom >= 4){ testFilledRoundRects(); }
+      }
       //
       // LED FUNCTIONS
       title_neo_colorshift(pos, 3);
@@ -299,6 +320,7 @@ void loop(){
     if (DebugSerial >= 2) {
       Serial.print(" Iteration="); Serial.print(i);
       Serial.print(" Pos="); Serial.print(pos);
+      Serial.print(" MyRandom="); Serial.print(MyRandom);
     }
 
     //

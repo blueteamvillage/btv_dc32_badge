@@ -45,3 +45,6 @@ Once the code has been uploaded you can use the serial monitor to look for any t
 
 * Run the following command changing the serial port to what board list showed above
   * ```arduino-cli monitor --config baudrate=115200 --port COM6```
+* On Linux
+  * ```arduino-cli --config-file arduino-cli.yml monitor --config baudrate=115200 --port /dev/ttyUSB0```
+  
