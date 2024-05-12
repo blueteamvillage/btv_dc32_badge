@@ -476,38 +476,76 @@ void loop(){
     delay(2000);
     //
     // DEAUTH SNIFF Alternative Main Loop
-    while (deauth_sniff_active) {
-      //
-      if (millis() - previousChannelHopTime >= CHANNEL_HOP_INTERVAL) {
-        if (deauthCount >= deauthThreshold)
-        {
-          Serial.println("Too many Deauths! (>=20)");
-          tft.fillScreen(0xF800); // go red
+    while (deauth_sniff_active)
+    {
+      if (millis() - previousChannelHopTime >= CHANNEL_HOP_INTERVAL)
+      {
+        if (deauthCount >= deauthThreshold) {
+          tft.fillScreen(0xF800); // Red background
+          tft.setCursor(35, 60);
+          tft.setTextColor(GC9A01A_BLACK);
+          tft.setTextSize(2);
+          tft.println("Detected!");
+
+          tft.setCursor(35, 100);
+          tft.setTextColor(GC9A01A_BLACK);
+          tft.setTextSize(2);
+          tft.print("Channel: ");
+          tft.println(currentChannel);
+
+          tft.setCursor(35, 140);
+          tft.setTextColor(GC9A01A_BLACK);
+          tft.setTextSize(2);
+          tft.print("Deauths: ");
+          tft.println(deauthCount > 9999 ? 9999 : deauthCount); // Limit to 4 digits
+
           delay(3500);
-          tft.fillScreen(0x07E0); // reset to green
+          tft.fillScreen(0x07E0); // Reset to green
         }
+        Serial.println("Channel - " + String(currentChannel) + " :: Deauths - " + String(deauthCount)); // This will not be the exact number printed on the screen as RX CB is continous
         channelHop();
         previousChannelHopTime = millis();
-        //
+
+        tft.fillScreen(0x07E0); // Green background
+        tft.setCursor(35, 60);
+        tft.setTextColor(GC9A01A_BLACK);
+        tft.setTextSize(3);
+        tft.println("Scanning...");
+
+        tft.setCursor(35, 100);
+        tft.setTextColor(GC9A01A_BLACK);
+        tft.setTextSize(2);
+        tft.print("Channel: ");
+        tft.println(currentChannel);
+
+        if (deauthCount < deauthThreshold)
+        {
+          tft.setCursor(35, 140);
+          tft.setTextColor(GC9A01A_BLACK);
+          tft.setTextSize(2);
+          tft.print("Deauths: ");
+          tft.println(deauthCount);
+        }
+
         // Touch for exit mode settings
-        //
         Touch01_Value = touchRead(TCH01_PIN);
-        // Do Stuff If We Detect a Touch on TCH01_PIN
-        if (Touch01_Value < Touch01_Threshold) {
-          // DEBUG - Print current Touch value/threshold to serial console for troubleshooting
-          if (DebugSerial >= 2) {
-            Serial.print("TCH01_TOUCHED="); Serial.print(Touch01_Value);
-            Serial.print("/"); Serial.println(Touch01_Threshold);
+        if (Touch01_Value < Touch01_Threshold)
+        {
+          if (DebugSerial >= 2)
+          {
+            Serial.print("TCH01_TOUCHED=");
+            Serial.print(Touch01_Value);
+            Serial.print("/");
+            Serial.println(Touch01_Threshold);
           }
-          // STUFF - TCH01_PIN TOUCHED
           Touch01_LoopCount++;
-        //
-        // Do Stuff If We DONT Detect a Touch on TCH01_PIN
-        } else {
-          // STUFF - TCH01_PIN NOT TOUCHED
+        }
+        else
+        {
           Touch01_LoopCount = 0;
         }
-        if (Touch01_LoopCount > 3) {
+        if (Touch01_LoopCount > 3)
+        {
           deauth_sniff_active = false;
         }
       }
@@ -587,8 +625,6 @@ void channelHop()
 {
   currentChannel = (currentChannel % MAX_CHANNELS) + 1;
   esp_wifi_set_channel(currentChannel, WIFI_SECOND_CHAN_NONE);
-  Serial.print("Channel: " + String(currentChannel));
-  Serial.println(" Deauth: " + String(deauthCount));
   deauthCount = 0;
 }
 //
