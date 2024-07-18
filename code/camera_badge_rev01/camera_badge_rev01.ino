@@ -164,7 +164,7 @@ int LEDDelayTime = 20;
 // 0 = no debug text
 // 1 = basic debug info once per main loop
 // 2 = extra debug info
-int DebugSerial = 2;
+int DebugSerial = 0;
 
 // //////////////////////////////////////////////////
 //
@@ -297,10 +297,10 @@ void loop()
     if (pos < 85)
     {
       //
-      // RUN A RANDOM SCREEN UPDATE ONCE PER GROUP
       if (pos == 0)
       {
-        displayEffect();
+        cameraShutter1();
+        cameraShutter2();
       }
       //
       // LED FUNCTIONS
@@ -314,7 +314,8 @@ void loop()
       //
       if (pos == 0)
       {
-          displayEffect();
+        cameraShutter1();
+        cameraShutter2();
       }
       //
       // LED FUNCTIONS
@@ -950,11 +951,11 @@ void status_neo_colorset(uint8_t mode)
 //
 // DISPLAY Functions
 // //////////////////////////////////////////////////
-unsigned long displayEffect()
+unsigned long cameraShutter1()
 {
   unsigned long start, t = 0;
-  int i, cx = tft.width() / 2 - 1,
-         cy = tft.height() / 2 - 1;
+  int cx = tft.width() / 2 - 1;
+  int cy = tft.height() / 2 - 1;
   tft.fillScreen(GC9A01A_BLACK);
   start = micros();
 
@@ -962,29 +963,80 @@ unsigned long displayEffect()
   uint16_t endColor = tft.color565(0, 0, 255);
 
   int colorSteps = min(cx, cy) / 5;
-  
-  for (i = min(cx, cy); i > 10; i -= 5)
+
+  for (int i = min(cx, cy); i > 10; i -= 5)
   {
     start = micros();
-    
+
     uint8_t red = map(i, 10, min(cx, cy), 255, 0);
     uint8_t green = 0;
     uint8_t blue = map(i, 10, min(cx, cy), 0, 255);
-    
-    tft.fillTriangle(cx, cy - i, cx - i, cy + i, cx + i, cy + i,
-                     tft.color565(red, green, blue));
 
-    tft.drawTriangle(cx, cy - i, cx - i, cy + i, cx + i, cy + i,
-                     tft.color565(0, 255, 255));
+    uint16_t color = tft.color565(red, green, blue);
 
-    uint8_t invertedRed = map(i, 10, min(cx, cy), 0, 255);
-    uint8_t invertedBlue = map(i, 10, min(cx, cy), 255, 0);
-    
-    tft.fillTriangle(cx, cy + i, cx - i, cy - i, cx + i, cy - i,
-                     tft.color565(invertedRed, green, invertedBlue));
+    for (int angle = 0; angle < 360; angle += 45)
+    {
+      float rad = radians(angle);
+      float radOffset = radians(15);
 
-    tft.drawTriangle(cx, cy + i, cx - i, cy - i, cx + i, cy - i,
-                     tft.color565(0, 255, 255));
+      int x1 = cx + i * cos(rad);
+      int y1 = cy + i * sin(rad);
+      int x2 = cx + i * cos(rad + radOffset);
+      int y2 = cy + i * sin(rad + radOffset);
+      int x3 = cx + i * cos(rad + 2 * radOffset);
+      int y3 = cy + i * sin(rad + 2 * radOffset);
+
+      tft.fillTriangle(cx, cy, x1, y1, x2, y2, color);
+      tft.drawTriangle(cx, cy, x1, y1, x2, y2, tft.color565(0, 255, 255));
+    }
+
+    t += micros() - start;
+    yield();
+  }
+
+  tft.fillTriangle(cx, cy - 10, cx - 10, cy + 10, cx + 10, cy + 10, GC9A01A_BLACK);
+
+  return t;
+}
+
+unsigned long cameraShutter2()
+{
+  unsigned long start, t = 0;
+  int cx = tft.width() / 2 - 1;
+  int cy = tft.height() / 2 - 1;
+  tft.fillScreen(GC9A01A_BLACK);
+  start = micros();
+
+  uint16_t startColor = tft.color565(255, 0, 0);
+  uint16_t endColor = tft.color565(0, 0, 255);
+
+  int colorSteps = min(cx, cy) / 5;
+
+  for (int i = min(cx, cy); i > 10; i -= 5)
+  {
+    start = micros();
+
+    uint8_t red = map(i, 10, min(cx, cy), 255, 0);
+    uint8_t green = 0;
+    uint8_t blue = map(i, 10, min(cx, cy), 0, 255);
+
+    uint16_t color = tft.color565(red, green, blue);
+
+    for (int angle = 0; angle < 360; angle += 45)
+    {
+      float rad = radians(angle + i);
+      float radOffset = radians(15);
+
+      int x1 = cx + i * cos(rad);
+      int y1 = cy + i * sin(rad);
+      int x2 = cx + i * cos(rad + radOffset);
+      int y2 = cy + i * sin(rad + radOffset);
+      int x3 = cx + i * cos(rad + 2 * radOffset);
+      int y3 = cy + i * sin(rad + 2 * radOffset);
+
+      tft.fillTriangle(cx, cy, x1, y1, x2, y2, color);
+      tft.drawTriangle(cx, cy, x1, y1, x2, y2, tft.color565(0, 255, 255));
+    }
 
     t += micros() - start;
     yield();
