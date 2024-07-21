@@ -35,6 +35,8 @@ These are the Arduino IDE and CLI versions we have tested the code with:
   * [MacOS ARM64bit Tarball Link](https://github.com/arduino/arduino-cli/releases/download/v0.35.3/arduino-cli_0.35.3_macOS_ARM64.tar.gz)
   * [Installation Instructions](https://arduino.github.io/arduino-cli/0.35/installation/)
 
+WARNING - DO NOT use Arduino CLI v 1.x if you want the scripts here to work, it is very buggy concerning local config files and relative paths
+
 # Quickstart
 
 If you want to jump right in and start compiling and uploading code using the Arduino CLI and the scripts provided then checkout the [QUICKSTART page](QUICKSTART.md).
