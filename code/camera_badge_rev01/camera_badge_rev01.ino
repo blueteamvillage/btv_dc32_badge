@@ -145,7 +145,6 @@ const String FLIPPER_MAC_PREFIX_2 = "80:e1:27";
 BLEScan *pBLEScan;
 int flipperCount = 0;
 bool flipper_scan_active = false;
-#define ORANGE 0xFBE4
 
 class MyAdvertisedDeviceCallbacks : public BLEAdvertisedDeviceCallbacks
 {
