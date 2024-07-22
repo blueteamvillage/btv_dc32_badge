@@ -9,6 +9,10 @@
 #include "Adafruit_GC9A01A.h"
 #include <esp_wifi_types.h>
 #include <esp_wifi.h>
+#include <BLEDevice.h>
+#include <BLEUtils.h>
+#include <BLEScan.h>
+#include <BLEAdvertisedDevice.h>
 
 // Pin Definitions
 //
@@ -69,16 +73,26 @@ const int LED_D7_pwm = 7;
 // Wireless Properties
 //
 // WIFI status codes
-const char* wl_status_to_string(wl_status_t status) {
-  switch (status) {
-    case WL_NO_SHIELD: return "WL_NO_SHIELD";
-    case WL_IDLE_STATUS: return "WL_IDLE_STATUS";
-    case WL_NO_SSID_AVAIL: return "WL_NO_SSID_AVAIL";
-    case WL_SCAN_COMPLETED: return "WL_SCAN_COMPLETED";
-    case WL_CONNECTED: return "WL_CONNECTED";
-    case WL_CONNECT_FAILED: return "WL_CONNECT_FAILED";
-    case WL_CONNECTION_LOST: return "WL_CONNECTION_LOST";
-    case WL_DISCONNECTED: return "WL_DISCONNECTED";
+const char *wl_status_to_string(wl_status_t status)
+{
+  switch (status)
+  {
+  case WL_NO_SHIELD:
+    return "WL_NO_SHIELD";
+  case WL_IDLE_STATUS:
+    return "WL_IDLE_STATUS";
+  case WL_NO_SSID_AVAIL:
+    return "WL_NO_SSID_AVAIL";
+  case WL_SCAN_COMPLETED:
+    return "WL_SCAN_COMPLETED";
+  case WL_CONNECTED:
+    return "WL_CONNECTED";
+  case WL_CONNECT_FAILED:
+    return "WL_CONNECT_FAILED";
+  case WL_CONNECTION_LOST:
+    return "WL_CONNECTION_LOST";
+  case WL_DISCONNECTED:
+    return "WL_DISCONNECTED";
   }
 }
 
@@ -122,6 +136,29 @@ typedef struct
   WifiMgmtHdr hdr;
 } wifi_ieee80211_packet_t;
 bool deauth_sniff_active = false;
+
+//
+// BLE Properties
+const int SCAN_TIME = 5; // scan duration in seconds
+const String FLIPPER_MAC_PREFIX_1 = "80:e1:26";
+const String FLIPPER_MAC_PREFIX_2 = "80:e1:27";
+BLEScan *pBLEScan;
+int flipperCount = 0;
+bool flipper_scan_active = false;
+#define ORANGE 0xFBE4
+
+class MyAdvertisedDeviceCallbacks : public BLEAdvertisedDeviceCallbacks
+{
+  void onResult(BLEAdvertisedDevice advertisedDevice)
+  {
+    String macAddress = String(advertisedDevice.getAddress().toString().c_str());
+    if (macAddress.startsWith(FLIPPER_MAC_PREFIX_1) || macAddress.startsWith(FLIPPER_MAC_PREFIX_2))
+    {
+      flipperCount++;
+    }
+  }
+};
+//
 
 // Capacitive Touch Properties
 //
@@ -177,14 +214,23 @@ void setup()
   // setup the serial output baud rate
   Serial.begin(115200);
 
-  if (DebugSerial >= 1) { Serial.println("Starting Setup"); }
+  if (DebugSerial >= 1)
+  {
+    Serial.println("Starting Setup");
+  }
 
   // Turn Off WiFi/BT
-  if (DebugSerial >= 2) { Serial.println("Turn Off WiFi / BlueTooth"); }
+  if (DebugSerial >= 2)
+  {
+    Serial.println("Turn Off WiFi / BlueTooth");
+  }
   setModemSleep();
 
   // Configure LED PWM functionalitites per channel
-  if (DebugSerial >= 2) { Serial.println("Configure PWM Channels"); }
+  if (DebugSerial >= 2)
+  {
+    Serial.println("Configure PWM Channels");
+  }
   ledcSetup(LED_D3_pwm, freq, resolution);
   ledcSetup(LED_D4_pwm, freq, resolution);
   ledcSetup(LED_D5_pwm, freq, resolution);
@@ -192,7 +238,10 @@ void setup()
   ledcSetup(LED_D7_pwm, freq, resolution);
 
   // Attach the channel to the GPIO to be controlled
-  if (DebugSerial >= 2) { Serial.println("Attach PWM Channels to LED Pins"); }
+  if (DebugSerial >= 2)
+  {
+    Serial.println("Attach PWM Channels to LED Pins");
+  }
   ledcAttachPin(LED_D3, LED_D3_pwm);
   ledcAttachPin(LED_D4, LED_D4_pwm);
   ledcAttachPin(LED_D5, LED_D5_pwm);
@@ -200,12 +249,18 @@ void setup()
   ledcAttachPin(LED_D7, LED_D7_pwm);
 
   // Normal LED output
-  if (DebugSerial >= 2) { Serial.println("Set Output for non-PWM LED Pins"); }
+  if (DebugSerial >= 2)
+  {
+    Serial.println("Set Output for non-PWM LED Pins");
+  }
   pinMode(LED_D2, OUTPUT);
   pinMode(LED_BI, OUTPUT);
 
   // Initialize the NeoPixels
-  if (DebugSerial >= 2) { Serial.println("Initialize NeoPixels"); }
+  if (DebugSerial >= 2)
+  {
+    Serial.println("Initialize NeoPixels");
+  }
   NEO01.begin();
   NEO02.begin();
   // Set Neopixel Brightness (0-255 scale)
@@ -213,18 +268,27 @@ void setup()
   NEO02.setBrightness(170);
 
   // Initialize the Display
-  if (DebugSerial >= 2) { Serial.println("Initialize Display"); }
+  if (DebugSerial >= 2)
+  {
+    Serial.println("Initialize Display");
+  }
   tft.begin();
 
   // Start all LEDs in OFF mode
-  if (DebugSerial >= 2) { Serial.println("Turn OFF all LEDs"); }
+  if (DebugSerial >= 2)
+  {
+    Serial.println("Turn OFF all LEDs");
+  }
   ledAllOff();
 
   //
   // Random Seed based on Touch03_Value
   randomSeed(touchRead(TCH03_PIN));
 
-  if (DebugSerial >= 1) { Serial.println(F("Setup Done!")); }
+  if (DebugSerial >= 1)
+  {
+    Serial.println(F("Setup Done!"));
+  }
 
   // END OF SETUP
 }
@@ -243,11 +307,20 @@ void loop()
   // Capacitive Touch Dynamic Threshold Adjustment
   // Adjust thresholds UP to account for assembly conditions and battery vs usb
   Touch01_Value = touchRead(TCH01_PIN);
-  if ((Touch01_Value / Touch01_Threshold) > 2 ) { Touch01_Threshold = int(Touch01_Threshold * 1.8); }
+  if ((Touch01_Value / Touch01_Threshold) > 2)
+  {
+    Touch01_Threshold = int(Touch01_Threshold * 1.8);
+  }
   Touch03_Value = touchRead(TCH03_PIN);
-  if ((Touch03_Value / Touch03_Threshold) > 2 ) { Touch03_Threshold = int(Touch03_Threshold * 1.8); }
+  if ((Touch03_Value / Touch03_Threshold) > 2)
+  {
+    Touch03_Threshold = int(Touch03_Threshold * 1.8);
+  }
   Touch05_Value = touchRead(TCH05_PIN);
-  if ((Touch05_Value / Touch05_Threshold) > 2 ) { Touch05_Threshold = int(Touch05_Threshold * 1.8); }
+  if ((Touch05_Value / Touch05_Threshold) > 2)
+  {
+    Touch05_Threshold = int(Touch05_Threshold * 1.8);
+  }
 
   // //////////////////////////////////
   //     START OF ITERATION LOOP
@@ -260,9 +333,12 @@ void loop()
     int pos = i;
 
     // DEBUG - Print current Iteration value to serial console for troubleshooting
-    if (DebugSerial >= 2) {
-      Serial.print(" Iteration="); Serial.print(i);
-      Serial.print(" Pos="); Serial.print(pos);
+    if (DebugSerial >= 2)
+    {
+      Serial.print(" Iteration=");
+      Serial.print(i);
+      Serial.print(" Pos=");
+      Serial.print(pos);
     }
 
     // **********
@@ -279,16 +355,23 @@ void loop()
     // **********
     //
     // Do Stuff If We Detect a Touch on TCH01_PIN
-    if (Touch01_Value < Touch01_Threshold) {
+    if (Touch01_Value < Touch01_Threshold)
+    {
       // DEBUG - Print current Touch value/threshold to serial console for troubleshooting
-      if (DebugSerial >= 2) {
-        Serial.print(" T1_TCH="); Serial.print(Touch01_Value);
-        Serial.print("/"); Serial.print(Touch01_Threshold);
-        Serial.print("-"); Serial.print(Touch01_IntCount);
-        Serial.print("/"); Serial.print(Touch01_LoopCount);
+      if (DebugSerial >= 2)
+      {
+        Serial.print(" T1_TCH=");
+        Serial.print(Touch01_Value);
+        Serial.print("/");
+        Serial.print(Touch01_Threshold);
+        Serial.print("-");
+        Serial.print(Touch01_IntCount);
+        Serial.print("/");
+        Serial.print(Touch01_LoopCount);
       }
       // STUFF - TCH01_PIN TOUCHED
-      if (Touch01_IntFlag == 0){
+      if (Touch01_IntFlag == 0)
+      {
         // Put stuff to happen once per iteration loop here
         Touch01_IntFlag = 1;
         //
@@ -301,17 +384,31 @@ void loop()
       // *** Add more stuff here if needed ***
       title_neo_blue();
       //
-    // Do Stuff If We DONT Detect a Touch on TCH01_PIN
-    } else {
+      // Do Stuff If We DONT Detect a Touch on TCH01_PIN
+    }
+    else
+    {
       // DEBUG - Print current Touch value/threshold to serial console for troubleshooting
-      if (DebugSerial >= 2) {
-        Serial.print(" T1="); Serial.print(Touch01_Value);
-        Serial.print("/"); Serial.print(Touch01_Threshold);
-        Serial.print("-"); Serial.print(Touch01_IntCount);
-        Serial.print("/"); Serial.print(Touch01_LoopCount);
+      if (DebugSerial >= 2)
+      {
+        Serial.print(" T1=");
+        Serial.print(Touch01_Value);
+        Serial.print("/");
+        Serial.print(Touch01_Threshold);
+        Serial.print("-");
+        Serial.print(Touch01_IntCount);
+        Serial.print("/");
+        Serial.print(Touch01_LoopCount);
       }
       // STUFF - TCH01_PIN NOT TOUCHED
-      if (Touch01_IntCount > 1) { Touch01_IntCount--; } else { Touch01_IntCount = 0; }
+      if (Touch01_IntCount > 1)
+      {
+        Touch01_IntCount--;
+      }
+      else
+      {
+        Touch01_IntCount = 0;
+      }
       //
       // *** Add more stuff here if needed ***
       //
@@ -322,39 +419,60 @@ void loop()
     // **********
     //
     // Do Stuff If We Detect a Touch on TCH03_PIN
-    if (Touch03_Value < Touch03_Threshold) {
+    if (Touch03_Value < Touch03_Threshold)
+    {
       // DEBUG - Print current Touch value/threshold to serial console for troubleshooting
-      if (DebugSerial >= 2) {
-        Serial.print(" T3_TCH="); Serial.print(Touch03_Value);
-        Serial.print("/"); Serial.print(Touch03_Threshold);
-        Serial.print("-"); Serial.print(Touch03_IntCount);
-        Serial.print("/"); Serial.print(Touch03_LoopCount);
+      if (DebugSerial >= 2)
+      {
+        Serial.print(" T3_TCH=");
+        Serial.print(Touch03_Value);
+        Serial.print("/");
+        Serial.print(Touch03_Threshold);
+        Serial.print("-");
+        Serial.print(Touch03_IntCount);
+        Serial.print("/");
+        Serial.print(Touch03_LoopCount);
       }
       // STUFF - TCH03_PIN TOUCHED
-      if (Touch03_IntFlag == 0){
+      if (Touch03_IntFlag == 0)
+      {
         // Put stuff to happen once per iteration loop here
         Touch03_IntFlag = 1;
         //
         // *** Add more stuff here if needed ***
-        status_neo_colorset(status_neo_mode);
+        //
         //
       }
       // Put stuff to happen every iteration here
       Touch03_IntCount++;
       //
       // *** Add more stuff here if needed ***
-      //
-    // Do Stuff If We DONT Detect a Touch on TCH03_PIN
-    } else {
+      title_neo_blue();
+      // Do Stuff If We DONT Detect a Touch on TCH03_PIN
+    }
+    else
+    {
       // DEBUG - Print current Touch value/threshold to serial console for troubleshooting
-      if (DebugSerial >= 2) {
-        Serial.print(" T3="); Serial.print(Touch03_Value);
-        Serial.print("/"); Serial.print(Touch03_Threshold);
-        Serial.print("-"); Serial.print(Touch03_IntCount);
-        Serial.print("/"); Serial.print(Touch03_LoopCount);
+      if (DebugSerial >= 2)
+      {
+        Serial.print(" T3=");
+        Serial.print(Touch03_Value);
+        Serial.print("/");
+        Serial.print(Touch03_Threshold);
+        Serial.print("-");
+        Serial.print(Touch03_IntCount);
+        Serial.print("/");
+        Serial.print(Touch03_LoopCount);
       }
       // STUFF - TCH03_PIN NOT TOUCHED
-      if (Touch03_IntCount > 1) { Touch03_IntCount--; } else { Touch03_IntCount = 0; }
+      if (Touch03_IntCount > 1)
+      {
+        Touch03_IntCount--;
+      }
+      else
+      {
+        Touch03_IntCount = 0;
+      }
       //
       // *** Add more stuff here if needed ***
       //
@@ -365,16 +483,23 @@ void loop()
     // **********
     //
     // Do Stuff If We Detect a Touch on TCH05_PIN
-    if (Touch05_Value < Touch05_Threshold) {
+    if (Touch05_Value < Touch05_Threshold)
+    {
       // DEBUG - Print current Touch value/threshold to serial console for troubleshooting
-      if (DebugSerial >= 2) {
-        Serial.print(" T5_TCH="); Serial.print(Touch05_Value);
-        Serial.print("/"); Serial.print(Touch05_Threshold);
-        Serial.print("-"); Serial.print(Touch05_IntCount);
-        Serial.print("/"); Serial.print(Touch05_LoopCount);
+      if (DebugSerial >= 2)
+      {
+        Serial.print(" T5_TCH=");
+        Serial.print(Touch05_Value);
+        Serial.print("/");
+        Serial.print(Touch05_Threshold);
+        Serial.print("-");
+        Serial.print(Touch05_IntCount);
+        Serial.print("/");
+        Serial.print(Touch05_LoopCount);
       }
       // STUFF - TCH05_PIN TOUCHED
-      if (Touch05_IntFlag == 0){
+      if (Touch05_IntFlag == 0)
+      {
         // Put stuff to happen once per iteration loop here
         Touch05_IntFlag = 1;
         //
@@ -387,17 +512,31 @@ void loop()
       // *** Add more stuff here if needed ***
       digitalWrite(LED_D2, HIGH);
       //
-    // Do Stuff If We DONT Detect a Touch on TCH05_PIN
-    } else {
+      // Do Stuff If We DONT Detect a Touch on TCH05_PIN
+    }
+    else
+    {
       // DEBUG - Print current Touch value/threshold to serial console for troubleshooting
-      if (DebugSerial >= 2) {
-        Serial.print(" T5="); Serial.print(Touch05_Value);
-        Serial.print("/"); Serial.print(Touch05_Threshold);
-        Serial.print("-"); Serial.print(Touch05_IntCount);
-        Serial.print("/"); Serial.print(Touch05_LoopCount);
+      if (DebugSerial >= 2)
+      {
+        Serial.print(" T5=");
+        Serial.print(Touch05_Value);
+        Serial.print("/");
+        Serial.print(Touch05_Threshold);
+        Serial.print("-");
+        Serial.print(Touch05_IntCount);
+        Serial.print("/");
+        Serial.print(Touch05_LoopCount);
       }
       // STUFF - TCH05_PIN NOT TOUCHED
-      if (Touch05_IntCount > 1) { Touch05_IntCount--; } else { Touch05_IntCount = 0; }
+      if (Touch05_IntCount > 1)
+      {
+        Touch05_IntCount--;
+      }
+      else
+      {
+        Touch05_IntCount = 0;
+      }
       //
       // *** Add more stuff here if needed ***
       digitalWrite(LED_D2, LOW);
@@ -409,23 +548,28 @@ void loop()
     // ********************
     //
     // First of three position groups i 0-84
-    if (pos < 85) {
+    if (pos < 85)
+    {
       //
-      if (pos == 0) {
+      if (pos == 0)
+      {
         cameraShutter1();
-        //cameraShutter2();
+        // cameraShutter2();
       }
       //
       // LED FUNCTIONS
       title_neo_colorshift(pos, 1);
       ledPwmSet(pos, 1);
       BI_blink_one(pos);
-    // Second of three position groups i 85-169 (pos-85 = 0-84)
-    } else if (pos < 170) {
+      // Second of three position groups i 85-169 (pos-85 = 0-84)
+    }
+    else if (pos < 170)
+    {
       pos = pos - 85;
       //
-      if (pos == 0) {
-        //cameraShutter1();
+      if (pos == 0)
+      {
+        // cameraShutter1();
         cameraShutter2();
       }
       //
@@ -433,32 +577,39 @@ void loop()
       title_neo_colorshift(pos, 2);
       ledPwmSet(pos, 2);
       BI_blink_one(pos);
-    // Third of three position groups i 170-254 (pos-170 = 0-84)
-    } else {
+      // Third of three position groups i 170-254 (pos-170 = 0-84)
+    }
+    else
+    {
       pos = pos - 170;
       //
       // LED FUNCTIONS
       title_neo_colorshift(pos, 3);
       BI_blink_one(pos);
       // Split third group 3/4 (pos 0-42) for even number of transitions
-      if (pos < 43) {
+      if (pos < 43)
+      {
         //
         ledPwmSet(pos, 3);
         // Split third group 4/4 (pos 43-84) for even number of transitions
-      } else {
+      }
+      else
+      {
         //
         ledPwmSet(pos, 4);
       }
     }
 
     // DEBUG - Print status neopixel mode
-    if (DebugSerial >= 2) {
+    if (DebugSerial >= 2)
+    {
       Serial.print(" Smode=");
       Serial.print(status_neo_mode);
     }
 
     // DEBUG - Print Carriage Return for iteration level debug output
-    if (DebugSerial >= 2) {
+    if (DebugSerial >= 2)
+    {
       Serial.println();
     }
 
@@ -475,12 +626,38 @@ void loop()
   // //////////////////////////////////
 
   // Touch Loop Counters
-  if (Touch01_IntCount >= 1) { Touch01_LoopCount++; Touch01_IntCount = 0; } else { Touch01_LoopCount = 0; }
-  if (Touch03_IntCount >= 1) { Touch03_LoopCount++; Touch03_IntCount = 0; } else { Touch03_LoopCount = 0; }
-  if (Touch05_IntCount >= 1) { Touch05_LoopCount++; Touch05_IntCount = 0; } else { Touch05_LoopCount = 0; }
+  if (Touch01_IntCount >= 1)
+  {
+    Touch01_LoopCount++;
+    Touch01_IntCount = 0;
+  }
+  else
+  {
+    Touch01_LoopCount = 0;
+  }
+  if (Touch03_IntCount >= 1)
+  {
+    Touch03_LoopCount++;
+    Touch03_IntCount = 0;
+  }
+  else
+  {
+    Touch03_LoopCount = 0;
+  }
+  if (Touch05_IntCount >= 1)
+  {
+    Touch05_LoopCount++;
+    Touch05_IntCount = 0;
+  }
+  else
+  {
+    Touch05_LoopCount = 0;
+  }
 
   // Reset Touch Iteration Flags
-  Touch01_IntFlag = 0; Touch03_IntFlag = 0; Touch05_IntFlag = 0;
+  Touch01_IntFlag = 0;
+  Touch03_IntFlag = 0;
+  Touch05_IntFlag = 0;
 
   // Turn off all LEDs at end of loop (Optional for troubleshooting)
   // ledAllOff();
@@ -573,15 +750,21 @@ void loop()
         Touch01_Value = touchRead(TCH01_PIN);
         if (Touch01_Value < Touch01_Threshold)
         {
-          if (DebugSerial >= 2) {
-            Serial.print("TCH01_TOUCHED="); Serial.print(Touch01_Value);
-            Serial.print("/"); Serial.println(Touch01_Threshold);
+          if (DebugSerial >= 2)
+          {
+            Serial.print("TCH01_TOUCHED=");
+            Serial.print(Touch01_Value);
+            Serial.print("/");
+            Serial.println(Touch01_Threshold);
           }
           Touch01_LoopCount++;
-        } else {
+        }
+        else
+        {
           Touch01_LoopCount = 0;
         }
-        if (Touch01_LoopCount > 3) {
+        if (Touch01_LoopCount > 3)
+        {
           deauth_sniff_active = false;
         }
       }
@@ -601,6 +784,80 @@ void loop()
     // Pause before turning on proceeding
     delay(100);
   }
+  // //////////////////////////////////////////////////
+  //
+  // Launch WOF Alternate Mainline Code When
+  // Touch03_LoopCount exceeds Touch03_Loop_Threshold
+  //
+  // //////////////////////////////////////////////////
+  if (Touch03_LoopCount > Touch03_Loop_Threshold)
+  {
+    Serial.println("LONG TOUCH DETECTED on TCH03 - JUMP TO WOF SCAN MODE");
+    ledAllOff();
+    title_neo_red();
+
+    flipper_scan_setup();
+
+    // Start WOF scanning loop
+    while (flipper_scan_active)
+    {
+      Serial.println("Scanning for Flippers...");
+      flipperCount = 0; // Reset count before each scan
+      BLEScanResults foundDevices = pBLEScan->start(SCAN_TIME, false);
+      pBLEScan->clearResults(); // Flush results before next scan
+
+      tftBlack();
+      tft.setCursor(35, 60);
+      tft.setTextColor(GC9A01A_WHITE);
+      tft.setTextSize(3);
+      tft.println("Flippers");
+
+      tft.setCursor(35, 100);
+      tft.setTextColor(GC9A01A_WHITE);
+      tft.setTextSize(3);
+      tft.println("Nearby");
+
+      tft.setCursor(35, 140);
+      tft.setTextColor(GC9A01A_WHITE);
+      tft.setTextSize(3);
+      tft.println(flipperCount > 9999 ? 9999 : flipperCount); // Limit to 4 digits
+
+      // Delay before the next scan
+      delay(5000); // 5 seconds delay
+
+      // Check for exit mode touch
+      Touch03_Value = touchRead(TCH03_PIN);
+      if (Touch03_Value < Touch03_Threshold)
+      {
+        Touch03_LoopCount++;
+      }
+      else
+      {
+        Touch03_LoopCount = 0;
+      }
+
+      // Exit WOF scan mode if long touch detected
+      if (Touch03_LoopCount > Touch03_Loop_Threshold)
+      {
+        Serial.println("LONG TOUCH DETECTED on TCH03 - EXITING WOF SCAN MODE");
+        flipper_scan_active = false; // Exit the scanning loop
+
+        Serial.println("****************************************");
+        Serial.println("**** EXITING WALL OF FLIPPERS SCAN MODE ******");
+        Serial.println("****************************************");
+        ledAllOff();
+        // Turn Off Bluetooth/Other
+        if (DebugSerial >= 2)
+        {
+          Serial.println("Turn Off Bluetooth");
+        }
+        setModemSleep();
+        Touch03_LoopCount = 0;
+        // Pause before proceeding
+        delay(100);
+      }
+    }
+  }
 
   // //////////////////////////////////////////////////
   //
@@ -608,7 +865,8 @@ void loop()
   // Touch05_LoopCount exceeds Touch05_Loop_Threshold
   //
   // //////////////////////////////////////////////////
-  if (Touch05_LoopCount > Touch05_Loop_Threshold) {
+  if (Touch05_LoopCount > Touch05_Loop_Threshold)
+  {
     //
     Serial.println("LONG TOUCH DETECTED on TCH05 - JUMP TO ALTERNATE CODE");
     //
@@ -663,6 +921,15 @@ void setModemSleep()
   disableWiFi();
   disableBluetooth();
   setCpuFrequencyMhz(80);
+}
+//
+void enableBluetooth()
+{
+  BLEDevice::init("");
+  pBLEScan = BLEDevice::getScan();
+  pBLEScan->setAdvertisedDeviceCallbacks(new MyAdvertisedDeviceCallbacks());
+  pBLEScan->setActiveScan(true);
+  Serial.println("Bluetooth enabled!");
 }
 //
 void enableWiFi()
@@ -739,6 +1006,43 @@ void packetSniffer(void *buf, wifi_promiscuous_pkt_type_t type)
     }
   }
 }
+
+// BLE Functions
+void flipper_scan_setup()
+{
+  // Enable Bluetooth scanning setup
+  enableBluetooth();
+
+  Serial.println("****************************************");
+  Serial.println("****************************************");
+  Serial.println("** WELCOME TO WALL OF FLIPPERS SCAN MODE *****");
+  Serial.println("****************************************");
+  Serial.println("****************************************");
+  Serial.println("*** ACTIVATED BY LONG TOUCH ON TCH03 ***");
+  Serial.println("****************************************");
+  Serial.println("****************************************");
+  Serial.println("** LONG PRESS AGAIN TO EXIT THIS MODE **");
+  Serial.println("****************************************");
+  Serial.println("****************************************");
+
+  tftBlack();
+  tft.setCursor(35, 60);
+  tft.setTextColor(GC9A01A_WHITE);
+  tft.setTextSize(3);
+  tft.println("Flippers");
+
+  tft.setCursor(35, 100);
+  tft.setTextColor(GC9A01A_WHITE);
+  tft.setTextSize(3);
+  tft.println("Nearby");
+
+  // Pause before proceeding
+  delay(1000);
+
+  flipper_scan_active = true;
+  Touch03_LoopCount = 0;
+}
+//
 // //////////////////////////////////////////////////
 //
 // LED Functions
@@ -808,8 +1112,11 @@ void ledPwmSet(uint8_t pos, uint8_t pass)
 //
 void title_neo_colorshift(uint8_t pos, uint8_t pass)
 {
-  // If Touch Area TCH01 is pressed dont do anything here
-  if (Touch01_IntCount > 0) { pass = 0; }
+  // If Touch Area TCH01 or TCH03 is pressed dont do anything here
+  if (Touch01_IntCount || Touch03_IntCount > 0)
+  {
+    pass = 0;
+  }
   // Pass 1 pos 0-84
   if (pass == 1)
   {
@@ -917,105 +1224,142 @@ void status_neo_colorset(uint8_t mode)
   NEO02.show();
 }
 //
-void BI_on() {
+void BI_on()
+{
+  digitalWrite(LED_BI, LOW); // LOW = ON?
+}
+//
+void BI_off()
+{
+  digitalWrite(LED_BI, HIGH); // HIGH = OFF?
+}
+//
+void BI_blink_one(uint8_t pos)
+{
+  if (pos <= 21)
+  {
     digitalWrite(LED_BI, LOW); // LOW = ON?
-}
-//
-void BI_off() {
+  }
+  else
+  {
     digitalWrite(LED_BI, HIGH); // HIGH = OFF?
+  }
 }
 //
-void BI_blink_one(uint8_t pos) {
-    if (pos <= 21) {
-      digitalWrite(LED_BI, LOW); // LOW = ON?
-    } else {
-      digitalWrite(LED_BI, HIGH); // HIGH = OFF?
-    }
+void BI_blink_two(uint8_t pos)
+{
+  if (pos <= 11)
+  {
+    digitalWrite(LED_BI, LOW); // LOW = ON?
+  }
+  else if (pos > 11 and pos <= 22)
+  {
+    digitalWrite(LED_BI, HIGH); // HIGH = OFF?
+  }
+  else if (pos > 22 and pos <= 33)
+  {
+    digitalWrite(LED_BI, LOW); // LOW = ON?
+  }
+  else
+  {
+    digitalWrite(LED_BI, HIGH); // HIGH = OFF?
+  }
 }
 //
-void BI_blink_two(uint8_t pos) {
-    if (pos <= 11) {
-      digitalWrite(LED_BI, LOW); // LOW = ON?
-    } else if (pos > 11 and pos <= 22) {
-      digitalWrite(LED_BI, HIGH); // HIGH = OFF?
-    } else if (pos > 22 and pos <= 33) {
-      digitalWrite(LED_BI, LOW); // LOW = ON?
-    } else {
-      digitalWrite(LED_BI, HIGH); // HIGH = OFF?
-    }
+void BI_blink_three(uint8_t pos)
+{
+  if (pos <= 5)
+  {
+    digitalWrite(LED_BI, LOW); // LOW = ON?
+  }
+  else if (pos > 5 and pos <= 10)
+  {
+    digitalWrite(LED_BI, HIGH); // HIGH = OFF?
+  }
+  else if (pos > 10 and pos <= 15)
+  {
+    digitalWrite(LED_BI, LOW); // LOW = ON?
+  }
+  else if (pos > 15 and pos <= 20)
+  {
+    digitalWrite(LED_BI, HIGH); // HIGH = OFF?
+  }
+  else if (pos > 20 and pos <= 25)
+  {
+    digitalWrite(LED_BI, LOW); // LOW = ON?
+  }
+  else
+  {
+    digitalWrite(LED_BI, HIGH); // HIGH = OFF?
+  }
 }
 //
-void BI_blink_three(uint8_t pos) {
-    if (pos <= 5) {
-      digitalWrite(LED_BI, LOW); // LOW = ON?
-    } else if (pos > 5 and pos <= 10) {
-      digitalWrite(LED_BI, HIGH); // HIGH = OFF?
-    } else if (pos > 10 and pos <= 15) {
-      digitalWrite(LED_BI, LOW); // LOW = ON?
-    } else if (pos > 15 and pos <= 20) {
-      digitalWrite(LED_BI, HIGH); // HIGH = OFF?
-    } else if (pos > 20 and pos <= 25) {
-      digitalWrite(LED_BI, LOW); // LOW = ON?
-    } else {
-      digitalWrite(LED_BI, HIGH); // HIGH = OFF?
-    }
-}
-//
-void batt_chrg_noled() {
-    // Set an exit var
-    bool batt_chrg_noled_active = true;
+void batt_chrg_noled()
+{
+  // Set an exit var
+  bool batt_chrg_noled_active = true;
+  //
+  while (batt_chrg_noled_active)
+  {
+    BI_off();
+    // Print Serial Message About Mode
+    Serial.println("****************************************");
+    Serial.println("****************************************");
+    Serial.println("********* BATT_CHRG_NOLED MODE *********");
+    Serial.println("****************************************");
+    Serial.println("*** ACTIVATED BY LONG TOUCH ON TCH01 ***");
+    Serial.println("***      THE MONARCH LOGO BUTTON     ***");
+    Serial.println("****************************************");
+    Serial.println("** LONG PRESS AGAIN TO EXIT THIS MODE **");
+    Serial.println("****************************************");
+    Serial.println("****************************************");
+    // Pause
+    delay(3500);
+    // Turn on-board LED on briefly to show badge is still on
+    BI_on();
+    // Pause
+    delay(500);
     //
-    while (batt_chrg_noled_active) {
-      BI_off();
-      // Print Serial Message About Mode
-      Serial.println("****************************************");
-      Serial.println("****************************************");
-      Serial.println("********* BATT_CHRG_NOLED MODE *********");
-      Serial.println("****************************************");
-      Serial.println("*** ACTIVATED BY LONG TOUCH ON TCH01 ***");
-      Serial.println("***      THE MONARCH LOGO BUTTON     ***");
-      Serial.println("****************************************");
-      Serial.println("** LONG PRESS AGAIN TO EXIT THIS MODE **");
-      Serial.println("****************************************");
-      Serial.println("****************************************");
-      // Pause
-      delay(3500);
-      // Turn on-board LED on briefly to show badge is still on
-      BI_on();
-      // Pause
-      delay(500);
-      //
-      // Touch for exit mode settings
-      //
-      Touch05_Value = touchRead(TCH05_PIN);
-      // Do Stuff If We Detect a Touch on TCH05_PIN
-      if (Touch05_Value < Touch05_Threshold) {
-        // DEBUG - Print current Touch value/threshold to serial console for troubleshooting
-        if (DebugSerial >= 2) {
-          Serial.print("T5_TCH="); Serial.print(Touch05_Value);
-          Serial.print("/"); Serial.print(Touch05_Threshold);
-          Serial.print("-"); Serial.println(Touch05_LoopCount);
-        }
-        // STUFF - TCH05_PIN TOUCHED
-        Touch05_LoopCount++;
+    // Touch for exit mode settings
+    //
+    Touch05_Value = touchRead(TCH05_PIN);
+    // Do Stuff If We Detect a Touch on TCH05_PIN
+    if (Touch05_Value < Touch05_Threshold)
+    {
+      // DEBUG - Print current Touch value/threshold to serial console for troubleshooting
+      if (DebugSerial >= 2)
+      {
+        Serial.print("T5_TCH=");
+        Serial.print(Touch05_Value);
+        Serial.print("/");
+        Serial.print(Touch05_Threshold);
+        Serial.print("-");
+        Serial.println(Touch05_LoopCount);
+      }
+      // STUFF - TCH05_PIN TOUCHED
+      Touch05_LoopCount++;
       //
       // Do Stuff If We DONT Detect a Touch on TCH05_PIN
-      } else {
-        // STUFF - TCH05_PIN NOT TOUCHED
-        Touch05_LoopCount = 0;
-      }
-      if (Touch05_LoopCount > Touch05_Loop_Threshold) {
-        batt_chrg_noled_active = false;
-      }
     }
+    else
+    {
+      // STUFF - TCH05_PIN NOT TOUCHED
+      Touch05_LoopCount = 0;
+    }
+    if (Touch05_LoopCount > Touch05_Loop_Threshold)
+    {
+      batt_chrg_noled_active = false;
+    }
+  }
 }
 // //////////////////////////////////////////////////
 //
 // DISPLAY Functions
 // //////////////////////////////////////////////////
-void tftBlack() {
-    // Set the tft screen to black
-    tft.fillScreen(GC9A01A_BLACK);
+void tftBlack()
+{
+  // Set the tft screen to black
+  tft.fillScreen(GC9A01A_BLACK);
 }
 unsigned long cameraShutter1()
 {
