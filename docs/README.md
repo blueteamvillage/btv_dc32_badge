@@ -1,3 +1,3 @@
-# PROJECTNAME
+# BTV Camera Badge
 
-Repository web page.
+BTV Camera Badge Repository web page and documentation.

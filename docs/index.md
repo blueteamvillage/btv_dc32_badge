@@ -2,20 +2,20 @@
 layout: default
 ---
 
-![Hero Image](Hero.gif)
+![Hero Image](images/Hero.jpg)
 
-# PROJECTNAME
+# BTV Camera Badge
 
-Welcome to the PROJECTNAME website.
+Welcome to the BTV Camera Badge website.
 
-Information about the project.
+This badge was designed for the DEFCON 32 security conference in August 2024.
 
--- [@alt_bier](https://twitter.com/alt_bier)  - [My Contact Info](https://gowen.net/about)
+On this page you will find all the details about this badge including an operations guide, an assembly guide (for those building the badge from a kit), and a detailed review of the art and cicuit design and pcb design.
 
 ---
 
-![Prototype Image](Proto.gif)
+![Code Test Image](images/badge-code-test.gif)
 
 # Details
 
-Detailed Information about the project.
+Detailed Information about the project COMING SOON.

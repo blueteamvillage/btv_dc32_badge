@@ -4,8 +4,8 @@
 
 1.28 inch TFT LCD Display Module Round RGB 240*240 GC9A01 Driver 4 Wire SPI Interface
 
-![Specs1](screen_specs1_1.28in_S9fd7a91f04f049a4865e5dd47b204d6bA.jpg)
-![Specs2](screen_specs2_1.28in_S6bd9f80333664306a94697ec085dfc7de.jpg)
+![Specs1](images/screen_specs1_1.28in_S9fd7a91f04f049a4865e5dd47b204d6bA.jpg)
+![Specs2](images/screen_specs2_1.28in_S6bd9f80333664306a94697ec085dfc7de.jpg)
 
 https://www.amazon.com/Teyleten-Robot-Display-Interface-240x240/dp/B0B7TFRNN1
 
