@@ -37,10 +37,13 @@ This is the list of components that you should have available for the assembly.
 
 <!-- Picture Top  -->
 ![Soldered PCB Top](images/BadgeSolderedTop.jpg)
+
 This PCB will be referenced as the "Top PCB" in the following instructions
 
 <!-- Picture Bottom -->
-![Soldered PCB Bottom](images/boutonniere_lit.jpg)
+![Soldered PCB Bottom](images/BadgeSoldered.jpg)
+
+This PCB will be referenced as the "Bottom PCB" in the following instructions
 
 
 ## Soldering Instructions
@@ -113,17 +116,17 @@ Set aside the bottom PCB and move to the top PCB.  Again except for the SAO conn
 Everything should be soldered onto the boards at this point.  
 You will have extra male headers, but if there's anything else extra you may want to refer to the reference pictures above to figure out what went wrong.
 
-*Attach PCBs
+* Attach PCBs
 	* Align the female and male 1x5 headers from the top and bottom PCBs
 	* Using a gentle but firm pressure press the two PCBs together.
 	
-*Power On
+* Power On
 	* Flip the switch to on and catch them DeAuths.
 	* NOTE: to charge the battery, the power switch must be set to the ON position.
 	* Charge the battery by connection the USB-C connection on the ESP32 board to a power source.
 	* Testing has indicated a full charge will last roughly seven hours, enough to look like a cool person for almost an entire work shift.	
 	
-*Attach Lanyard
+* Attach Lanyard
 	* Take one end of lanyard and put the clip in the clip hole.
 	* Take the other end of the lanyard and put that one in the other clip hole.
 	
