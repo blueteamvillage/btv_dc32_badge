@@ -18,4 +18,6 @@ On this page you will find all the details about this badge including an operati
 
 # Details
 
-Detailed Information about the project COMING SOON.
+[Assembly instructions can be found here](BadgeInstructions.md)
+
+More detailed information about the project COMING SOON.
