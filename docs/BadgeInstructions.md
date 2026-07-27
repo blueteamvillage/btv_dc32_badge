@@ -93,7 +93,7 @@ We will start with the bottom board of the badge please ensure the components th
 	* Cut the connector off the battery, while ensuring you have enough wire on the connector left to make the connection for ESP32 board.
 	* Double check the switch is in the "OFF" position 
 	*Plug the PH/JST connector into the ESP32 board.  Note the polarity on the board with the positive connection being on the left.
-		*Some of the PH/JST connectors in the kits have the wire colors flipped.  Insert the connector into the esp32 and check the reference photo above.  If the black wire is on the left side of the esp32, the black wire will be the + connection.
+	*Some of the PH/JST connectors in the kits have the wire colors flipped.  Insert the connector into the esp32 and check the reference photo above.  If the black wire is on the left side of the esp32, the black wire will be the + connection.
 	* From the PH/JST connector solder the black wire into the GND socket next to the spot marked J1.
 	* Solder the red wire from the connector into the + socket next to the spot marked J1.
 	* Move back to the wires attached to the battery.
